@@ -12,6 +12,7 @@
     <modules>
         <module>auth-service</module>
         <module>holiday-service</module>
+        <module>user-service</module>
     </modules>
 
     <dependencyManagement>
