@@ -8,4 +8,6 @@ import java.util.List;
 
 @Repository
 public interface HolidayRepository extends JpaRepository<Holiday, Long> {
+    // For demonstration, you could add custom queries as needed.
+    List<Holiday> findByCountryCode(String countryCode);
 }
