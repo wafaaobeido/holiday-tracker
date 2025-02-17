@@ -1,0 +1,25 @@
+<div class="dashboard-container">
+  <!-- Navbar -->
+  <div class="navbar">
+      <button mat-raised-button color="accent" class="register-btn" *ngIf="isUserLoggedIn()" (click)="navigateToRegister()">
+        Register
+      </button>
+    <span>Holiday Tracker</span>
+    <button mat-raised-button color="warn" class="logout-btn" (click)="logout()">Logout</button>
+  </div>
+
+  <!-- Dashboard Cards -->
+  <div class="card-container">
+    <mat-card class="dashboard-card">
+      <mat-card-title>Your Holidays</mat-card-title>
+      <mat-card-content>Track your planned holidays here.</mat-card-content>
+      <button mat-raised-button color="primary" class="dashboard-btn" routerLink="/holidays">View Holidays</button>
+    </mat-card>
+
+    <mat-card class="dashboard-card">
+      <mat-card-title>My Activity</mat-card-title>
+      <mat-card-content>My login and holiday requests.</mat-card-content>
+      <button mat-raised-button color="accent" class="dashboard-btn" routerLink="/user-logs">View My Activity</button>
+    </mat-card>
+  </div>
+</div>
