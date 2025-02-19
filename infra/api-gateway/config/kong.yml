@@ -1,0 +1,71 @@
+_format_version: "3.0"
+# Kong Services
+services:
+  - name: auth-service
+    url: http://auth-service:8081
+    routes:
+      - name: secured-auth
+        paths:
+          - /auth
+        strip_path: false  #Do not remove /auth before forwarding
+        plugins:
+          - name: key-auth
+            config:
+              key_names: [ "apikey" ]
+              hide_credentials: true
+      - name: open-auth
+        paths:
+          - /key
+        strip_path: false  #Do not remove /key before forwarding
+        methods:
+          - GET
+
+
+  - name: holiday-service
+    url: http://holiday-service:8082
+    routes:
+      - name: holiday-route
+        paths:
+          - /holidays
+        strip_path: false  #Do not remove /holidays before forwarding
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - OPTIONS
+
+
+  - name: user-service
+    url: http://user-service:8083
+    routes:
+      - name: user-route
+        paths:
+          - /users
+        strip_path: false  #Do not remove /users before forwarding 
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - OPTIONS
+
+
+# Kong Plugins (Security & Rate Limiting)
+
+plugins:
+  - name: rate-limiting
+    config:
+      second: 1000  # Allow 5 requests per second
+      policy: local
+      window_size: 60 
+
+  - name: cors
+    config:
+      origins: [http://localhost:4200 , http://frontend:4200, http://auth-service:8081/**, http://user-service:8083/**]
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+      headers: ["Authorization", "Accept", "Accept-Version","Content-Length","Content-MD5","Content-Type","Date","X-Auth-Token", "apikey"]
+      exposed_headers: ["Content-Length", "Content-Type", "X-Auth-Token", "X-Total-Count"]
+      credentials: true
+      max_age: 3600
+
