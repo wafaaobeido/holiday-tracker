@@ -77,14 +77,6 @@ public class HolidayServiceTest {
                 new Holiday("Future Holiday", today.plusDays(5)) // Should be filtered out
         );
 
-        ResponseEntity<List<Holiday>> responseEntity = new ResponseEntity<>(mockHolidays, HttpStatus.OK);
-
-        // Use Answer to handle generic types properly
-        when(restTemplate.exchange(eq(url), eq(org.springframework.http.HttpMethod.GET), any(),
-                any(ParameterizedTypeReference.class)))
-                .thenReturn(responseEntity);
-
-
         HolidayResponse holidays = holidayService.getAll(List.of("US"));
 
         assertNotNull(holidays);
