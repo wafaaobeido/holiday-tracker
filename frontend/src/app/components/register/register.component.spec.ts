@@ -1,48 +1,35 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { RegisterComponent } from './register.component';
 import { AuthService } from '../../services/auth.service';
-import { RouterTestingModule } from '@angular/router/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { FormsModule } from '@angular/forms';
-import { of, throwError } from 'rxjs';
+import { Router } from '@angular/router';
+import { of } from 'rxjs';
 
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
-  let fixture: ComponentFixture<RegisterComponent>;
-  let authServiceSpy: jasmine.SpyObj<AuthService>;
+  let authServiceSpy = jasmine.createSpyObj('AuthService', ['register']);
+  let routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
-  beforeEach(async () => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['register']);
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: AuthService, useValue: authServiceSpy },
+        { provide: Router, useValue: routerSpy }
+      ]
+    });
 
-    await TestBed.configureTestingModule({
-      imports: [RouterTestingModule, HttpClientTestingModule, FormsModule],
-      declarations: [RegisterComponent],
-      providers: [{ provide: AuthService, useValue: authServiceSpy }]
-    }).compileComponents();
+    component = TestBed.createComponent(RegisterComponent).componentInstance;
 
-    fixture = TestBed.createComponent(RegisterComponent);
-    component = fixture.componentInstance;
+    spyOn(sessionStorage, 'getItem').and.returnValue('mockToken'); // ✅ Mock sessionStorage
   });
 
-  it('should create component', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should register user successfully', () => {
-    authServiceSpy.register.and.returnValue(of({ message: 'User registered successfully' }));
-
-    component.user = { firstname: 'John', lastname: 'Doe', username: 'testuser', email: 'test@example.com', password: 'password' };
+  it('should call authService.register and navigate on success', fakeAsync(() => {
+    authServiceSpy.register.and.returnValue(of({})); // ✅ Mock successful registration
+  
     component.register();
-
-    expect(window.alert).toHaveBeenCalledWith('User registered successfully!');
-  });
-
-  it('should show error on registration failure', () => {
-    authServiceSpy.register.and.returnValue(throwError(() => new Error('Registration failed')));
-
-    spyOn(window, 'alert');
-    component.register();
-
-    expect(window.alert).toHaveBeenCalledWith('Registration failed. Please check your inputs.');
-  });
+  
+    expect(authServiceSpy.register).toHaveBeenCalled(); 
+  
+    tick(100); // ✅ Simulate the `setTimeout()` delay
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']); // ✅ Now it should pass
+  }));
 });

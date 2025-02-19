@@ -1,33 +1,42 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HolidaysComponent } from './holiday-list.component';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { HolidayService } from '../../services/holiday.service';
+import { of } from 'rxjs';
+import { ChangeDetectorRef } from '@angular/core';
 
-describe('HolidayService', () => {
-  let service: HolidayService;
-  let httpMock: HttpTestingController;
+describe('HolidayListComponent', () => {
+  let component: HolidaysComponent;
+  let holidayService: HolidayService;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [HolidayService]
-    });
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [MatTableModule, MatPaginatorModule, MatSortModule, MatSnackBarModule],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        ChangeDetectorRef,
+        HolidayService,
+        HolidaysComponent
+      ],
+    }).compileComponents();
 
-    service = TestBed.inject(HolidayService);
-    httpMock = TestBed.inject(HttpTestingController);
+    component = TestBed.inject(HolidaysComponent);
+    holidayService = TestBed.inject(HolidayService);
   });
 
-  it('should fetch holidays', () => {
-    service.getAllHolidays('US').subscribe((holidays: string | any[]) => {
-      expect(holidays.length).toBe(1);
-      expect(holidays[0].name).toBe('New Year');
-    });
-
-    const req = httpMock.expectOne('/all/US');
-    expect(req.request.method).toBe('GET');
-    req.flush([{ name: 'New Year', date: '2024-01-01' }]);
+  it('should create', () => {
+    expect(component).toBeTruthy();
   });
 
-  afterEach(() => {
-    httpMock.verify();
+  it('should fetch holidays on method call', () => {
+    spyOn(holidayService, 'getAllHolidays').and.returnValue(of([]));
+    component.fetchAllHolidays();
+    expect(holidayService.getAllHolidays).toHaveBeenCalled();
   });
 });

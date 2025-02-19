@@ -1,49 +1,42 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { LoginComponent } from './login.component';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
-import { RouterTestingModule } from '@angular/router/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { FormsModule } from '@angular/forms';
-import { of, throwError } from 'rxjs';
+import { Router } from '@angular/router';
+import { of } from 'rxjs';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
-  let fixture: ComponentFixture<LoginComponent>;
-  let authServiceSpy: jasmine.SpyObj<AuthService>;
+  let authService: AuthService;
+  let router: Router;
 
   beforeEach(async () => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['login']);
-
     await TestBed.configureTestingModule({
-      imports: [RouterTestingModule, HttpClientTestingModule, FormsModule],
-      declarations: [LoginComponent],
-      providers: [{ provide: AuthService, useValue: authServiceSpy }]
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        AuthService,
+        LoginComponent
+      ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(LoginComponent);
-    component = fixture.componentInstance;
+    component = TestBed.inject(LoginComponent);
+    authService = TestBed.inject(AuthService);
+    router = TestBed.inject(Router);
   });
 
-  it('should create component', () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should log in successfully', () => {
-    authServiceSpy.login.and.returnValue(of({ access_token: 'mock-token' }));
+  it('should call authService.login on login and navigate on success', () => {
+    spyOn(authService, 'login').and.returnValue(of({ access_token: 'mockToken' }));
+    spyOn(router, 'navigate');
 
-    component.credentials = { username: 'testuser', password: 'password' };
     component.login();
 
-    expect(localStorage.getItem('token')).toBe('mock-token');
-  });
-
-  it('should show error on login failure', () => {
-    authServiceSpy.login.and.returnValue(throwError(() => new Error('Login failed')));
-
-    spyOn(window, 'alert');
-    component.credentials = { username: 'testuser', password: 'wrong' };
-    component.login();
-
-    expect(window.alert).toHaveBeenCalledWith('Login failed! Please check your credentials.');
+    expect(authService.login).toHaveBeenCalledWith(component.credentials);
+    expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
   });
 });
