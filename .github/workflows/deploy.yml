@@ -1,33 +1,74 @@
-name: Deploy to Kubernetes
+name: CI/CD Pipeline
 
 on:
   push:
     branches:
+      - develop
       - main
+  workflow_dispatch:
+
 
 jobs:
-  deploy:
+  build-and-push:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Check Kubernetes Context
-      run: |
-        kubectl config current-context
-        kubectl cluster-info
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose version  # Verify installation
 
-    - name: Set up Kubernetes
-      run: |
-        curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
-        chmod +x kubectl
-        sudo mv kubectl /usr/local/bin/
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Apply Kubernetes Deployment
-      run: |
-        kubectl apply -f ./infra/k8s/deployment.yaml
-        kubectl apply -f ./infra/k8s/service.yaml
+      - name: Build and push Java 19 Maven Image
+        run: |
+          docker build -t my-java19-maven:latest -f infra/docker/java19-maven.Dockerfile infra/docker/
+          docker tag my-java19-maven:latest ${{ secrets.DOCKER_USERNAME }}/my-java19-maven:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/my-java19-maven:latest
 
-    - name: Verify Deployment
-      run: kubectl get pods
+      - name: Build and push Docker images
+        working-directory: infra/docker
+        run: |
+          docker-compose build
+          docker-compose push
+
+  run-tests:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 19
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '19'
+
+      - name: Run backend tests
+        run: mvn test -f backend/pom.xml
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Run frontend tests
+        run: |
+          cd frontend
+          npm install
+          npm test
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: run-tests
+    steps:
+      - name: Send Deployment Notification
+        run: echo "🎉 Deployment Successful!"
