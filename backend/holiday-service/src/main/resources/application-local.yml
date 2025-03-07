@@ -1,0 +1,94 @@
+server:
+  port: 8087
+
+jwt:
+  secret: ${JWT_SECRET:"leDadBiTjMjT/FYxvrhF7I5MvhYjhxs/kvFZRBuGOpJ+MhPas9eaxWHohluz8w1UZggD6ccfMx3cypPe/VIjiw=="}
+  public-key: |
+    -----BEGIN PUBLIC KEY-----
+    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsCzErGby+clU3xZnroUuum3qkqqMfEISIPJjnewJuaftGgyXvSPynqq0dFoffl3pXhWi0ihsKfROJhT2vNTF+5U2ShMO+cBLH8XZ/JaxsPQ4IMO27A0vWCGqQBRcUL2+kuLBMCzL5VjOodKHaZMKgBYPKjb6qSEjSUwn+SMinNk1p5/e0Z6HBCh838XQmaJc/Kf3esDlnMPTJ6rQzg6eQ6yJY/7IkDlog93kThKQt0Q7H6h9dOe942T1gtlBboxV/zFfj1XWmpvs5R3/SQB7M7Z4T5COx0snnufYPY4ZpZjGsbHs5HCSaVqzZVGmUA0Cr4uqVtSWogkJkAvhCsUgjwIDAQAB...
+    -----END PUBLIC KEY-----
+
+# Local DB configuration
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/holiday_db
+    username: test
+    password: test
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+
+  security:
+    cors:
+      allowed-origins: >
+        http://localhost:2323 ,
+        http://localhost:4200
+
+  session:
+    store-type: redis
+  cache:
+    type: redis  # Use Redis as cache provider
+  redis:
+    host: localhost
+    port: 6379
+    database: 0
+    timeout: 60000
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    listener:
+      ack-mode: manual_immediate
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 5
+      linger.ms: 1
+      batch.size: 16384
+      properties:
+        enable.idempotence: true
+        allow.auto.create.topics: false
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: user-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.value.default.type: "com.holiday_tracker.shared_libraries.events.UserActivityEvent"
+        spring.json.trusted.packages: "com.holiday_tracker.*"
+      enable-auto-commit: false  # Ensures manual commit handling
+      max-poll-records: 10  # Number of records per poll
+      fetch-min-bytes: 1  # Minimum amount of data per fetchs
+      fetch.wait.max.ms: 100  # Reduce fetch wait time
+
+logging:
+  level:
+    root: INFO
+    org.apache.kafka: WARN
+    kafka: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.data.redis: DEBUG
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+  api-docs:
+    enabled: true
+  default-produces-media-type: application/json
+  paths-to-match: /**
+  cache:
+    disabled: true
+
+

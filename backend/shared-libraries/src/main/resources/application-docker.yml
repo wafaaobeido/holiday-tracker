@@ -1,0 +1,10 @@
+server:
+  port: 8073
+
+spring:
+  security:
+    cors:
+      allowed-origins: >
+        http://frontend:4200 , http://keycloak:8080 , http://kong:8000 ,  
+        http://localhost:4200 , http://localhost:8080 , http://localhost:8000  
+

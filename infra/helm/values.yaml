@@ -1,0 +1,32 @@
+replicaCount: 2
+
+image:
+  repository: holiday-tracker/microservices
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  ports:
+    auth-service: 8081
+    user-service: 8083
+    holiday-service: 8082
+
+database:
+  mysql:
+    host: mysql.default.svc.cluster.local
+    username: root
+    password: root
+    database: auth_db,user_db,holiday_db
+
+cache:
+  redis:
+    host: redis.default.svc.cluster.local
+
+admin:
+  enabled: true
+  http:
+    enabled: true
+    port: 8001
+    allow:
+      - 0.0.0.0/0 

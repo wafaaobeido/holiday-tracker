@@ -1,0 +1,57 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+    initialization-mode: never
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+  sql:
+    init:
+      mode: never  # Prevents automatic database script execution
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    advertised:
+      listeners: PLAINTEXT://localhost:9092
+    consumer:
+      properties:
+        allow.auto.create.topics: false
+    security:
+      protocol=PLAINTEXT:
+
+
+  session:
+    store-type: redis
+  cache:
+    type: redis  # Use Redis as cache provider
+  redis:
+    host: localhost
+    port: 6379
+    database: 0
+    timeout: 60000
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
+
+
+springdoc:
+  api-docs:
+    enabled: false;
+
+
+jwt:
+  secret: ${JWT_SECRET:"leDadBiTjMjT/FYxvrhF7I5MvhYjhxs/kvFZRBuGOpJ+MhPas9eaxWHohluz8w1UZggD6ccfMx3cypPe/VIjiw=="}
+  public-key: |
+    -----BEGIN PUBLIC KEY-----
+    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsCzErGby+clU3xZnroUuum3qkqqMfEISIPJjnewJuaftGgyXvSPynqq0dFoffl3pXhWi0ihsKfROJhT2vNTF+5U2ShMO+cBLH8XZ/JaxsPQ4IMO27A0vWCGqQBRcUL2+kuLBMCzL5VjOodKHaZMKgBYPKjb6qSEjSUwn+SMinNk1p5/e0Z6HBCh838XQmaJc/Kf3esDlnMPTJ6rQzg6eQ6yJY/7IkDlog93kThKQt0Q7H6h9dOe942T1gtlBboxV/zFfj1XWmpvs5R3/SQB7M7Z4T5COx0snnufYPY4ZpZjGsbHs5HCSaVqzZVGmUA0Cr4uqVtSWogkJkAvhCsUgjwIDAQAB...
+    -----END PUBLIC KEY-----
