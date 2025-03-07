@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+    initialization-mode: never
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    advertised:
+      listeners: PLAINTEXT://localhost:9092
+    consumer:
+      properties:
+        allow.auto.create.topics: false
+    security:
+      protocol=PLAINTEXT:
