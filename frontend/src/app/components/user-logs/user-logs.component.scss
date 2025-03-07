@@ -1,0 +1,94 @@
+.user-activity-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  padding-top: 0;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.header {
+  width: 100%;
+  background-color: #3f51b5;
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.header .home-container {
+  display: flex;
+  justify-content: start;
+  gap: 10px;
+}
+
+.header .home-icon {
+  flex-grow: 1;
+  cursor: pointer;
+  font-size: 22px;
+  padding: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header span {
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  outline: none;
+}
+
+.search-container {
+  display: flex;
+  justify-content: end;
+  gap: 10px;
+  width: 50%; /* Ensures proper width */
+}
+
+.refresh-icon {
+  cursor: pointer;
+  font-size: 22px;
+  padding: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.refresh-icon:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: rotate(180deg);
+}
+
+
+.table-container {
+  display: grid;
+  width: 90%;
+  max-width: 900px;
+  margin-top: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+  padding: 20px;
+}
+
+.table-wrapper {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+/* Fix pagination positioning */
+mat-paginator {
+  align-self: flex-end;
+  // border-radius: 8px;
+  // background: white;
+  // box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.1);
+}

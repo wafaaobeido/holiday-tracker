@@ -1,0 +1,168 @@
+<div class="holidays-container">
+  <!-- Header -->
+  <div class="header">
+      <div class="home-container">
+        <mat-icon class="home-icon" (click)="goHome()">home</mat-icon>
+        <span>Holidays</span>
+      </div>
+      
+  </div>
+
+
+  <div class="holiday-guide">
+    <h3>🌴 Holiday Search Guide 🌴</h3>
+    <p>Use the filters below to explore holidays based on different criteria. Simply enter the required values and click <strong>Search</strong>! </p>
+    
+    <ul>
+        <li> <strong> Search by Country :</strong> Enter a <strong>Country Code</strong> (e.g., <code>US</code> for United States, <code>DE</code> for Germany) to get all holidays for that country. <br> 
+            <em>Example: <code>US</code> → Shows all holidays in the United States.</em> 
+        </li>
+
+        <li> <strong> Find Recently Celebrated Holidays :</strong> Enter <strong>Country Code + X Number</strong> to retrieve the last X celebrated holidays. <br>
+            <em>Example: <code>US + 5</code> → Returns the last 5 holidays celebrated in the U.S.</em> 
+        </li>
+
+        <li> <strong> Count Holidays on Weekdays :</strong> Enter <strong>Country Code + Year</strong> to count how many holidays fall on weekdays only (Monday–Friday).  <br>
+            <em>Example: <code>US + 2024</code> → Shows the total number of weekday holidays in the U.S. for 2024.</em> 
+        </li>
+
+        <li> <strong> List Holidays on Weekdays For Multiple Countries:</strong> Enter <strong> Country Codes (comma-separated) + Year + X Number </strong> to list X holidays that fall on weekdays only (Monday–Friday).  <br>
+              <strong><li>If a country code does not exist in the database, an error message will appear for that country. ❌</li></strong> 
+            <em>Example: <code>US,DE,FR + 2024 + 5 </code> → Displays List of 5 holidays for each U.S., Germany, and France in 2024.</em> 
+        </li>
+
+        <li> <strong> Compare Holidays Between Two Countries :</strong> Enter <strong>Country Code + Year + Another Country Code</strong> to find common holidays.  <br>
+            <em>Example: <code>US + 2024 + DE</code> → Displays holidays celebrated in both the U.S. and Germany in 2024.</em> 
+        </li>
+    </ul>
+
+    <p>💡 Click <strong>Search</strong> to get your results! </p>
+  </div>
+
+
+  <form class="input-container" [formGroup]="holidayForm">
+    
+    <!-- Year Input -->
+    <mat-form-field appearance="outline">
+      <mat-label>Year</mat-label>
+      <input matInput type="number" formControlName="year">
+      <mat-error *ngIf="formControls['year'].invalid && formControls['year'].touched">
+        <span *ngIf="formControls['year'].errors?.['min']">Year must be **after 1900**.</span>
+        <span *ngIf="formControls['year'].errors?.['max']">Year **cannot be in the future**.</span>
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Country Code Input -->
+    <mat-form-field appearance="outline">
+      <mat-label>Country Code</mat-label>
+      <input matInput type="text" formControlName="countryCode">
+      <mat-error *ngIf="formControls['countryCode'].invalid && formControls['countryCode'].touched">
+        <span *ngIf="formControls['countryCode'].errors?.['InvalidPattern']">  Enter a valid 2 or 3-letter **uppercase** (e.g., US, GBR).</span>
+        <span *ngIf="formControls['countryCode'].errors?.['multiErr']">Multiple country codes are **only allowed if Year and Number are filled**.</span>
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Number Input -->
+    <mat-form-field appearance="outline">
+      <mat-label>Number</mat-label>
+      <input matInput type="text" formControlName="number">
+      <mat-error *ngIf="formControls['number'].invalid && formControls['number'].touched">
+        Enter a **positive number**.
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Compare with Country Input -->
+    <mat-form-field appearance="outline">
+      <mat-label>Compare with Country</mat-label>
+      <input matInput type="text" formControlName="country2">
+      <mat-error *ngIf="formControls['country2'].invalid && formControls['country2'].touched">
+        Enter **comma-separated uppercase country codes**.
+      </mat-error>
+    </mat-form-field>
+
+    
+
+    <!-- Refresh Icon -->
+    <div class="search-container">
+      <!-- Search Button -->
+      <button class="input-btn" mat-raised-button color="primary" 
+      (click)="fetchTheRightHolidays()" 
+      [disabled]="holidayForm.invalid">
+        Search
+      </button>
+      <mat-icon class="refresh-icon">refresh</mat-icon>
+    </div>
+  </form>
+
+  <!-- Country Filter: Shows a dropdown only if there are countries available -->
+  <div class="container" *ngIf="getCountryKeys().length > 0"> 
+    <mat-form-field appearance="outline">
+      <mat-label>Select Country</mat-label>
+      <mat-select [(value)]="selectedCountry" (selectionChange)="onCountryChange()">
+        <!-- Option to show all countries -->
+        <mat-option value="">All Countries</mat-option>
+        <!-- Dynamically list available countries -->
+        <mat-option *ngFor="let countryCode of getCountryKeys()" [value]="countryCode">
+          {{ countryCode }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container" *ngIf="holidaysCount.length == 0 && this.dataSource.data.length != 0">
+    <div class="table-wrapper" >
+      
+        <!-- Material Table -->
+        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+          
+          <!-- Country Column -->
+          <ng-container matColumnDef="countryCode">
+            <th mat-header-cell *matHeaderCellDef> Country </th>
+            <td mat-cell *matCellDef="let element"> {{ element.countryCode }} {{formControls['country2'] ? ', ' + formControls['country2']: ''}} </td>
+          </ng-container>
+          
+          <!-- Name Column -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef> Name </th>
+            <td mat-cell *matCellDef="let element"> {{ element.name }} </td>
+          </ng-container>
+          
+          <!-- Date Column -->
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef> Date </th>
+            <td mat-cell *matCellDef="let element"> {{ element.date }} </td>
+          </ng-container>
+          
+          <!-- Row Definitions -->
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+    </div>
+            <!-- Error Messages (if any) -->
+    <div class="error-messages" *ngIf="holidaysResponse?.errors">
+      <div class="error-container" *ngFor="let errorKey of objectKeys(holidaysResponse.errors)">
+        <mat-icon class="error-icon" >error</mat-icon>
+        <p class="error-text" *ngIf="holidaysResponse.errors[errorKey]">
+          Error for {{ errorKey }}: Country is not found {{ errorKey }}
+        </p>
+      </div>
+    </div>
+    <!-- Paginator -->
+    <mat-paginator
+      [pageSizeOptions]="[5, 10, 20]"
+      showFirstLastButtons
+    ></mat-paginator>
+  </div>
+
+  <div class="show-count" *ngIf="holidaysCount.length != 0">
+    <div *ngFor="let holiday of holidaysCount">
+      <p>
+        There is <b>{{ holiday.count }}</b> holiday in <b>{{ holiday.countryCode }}</b>
+      </p>
+    </div>
+  </div>
+
+
+</div>

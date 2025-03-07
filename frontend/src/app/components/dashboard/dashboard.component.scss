@@ -1,0 +1,89 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 95%;
+  padding: 15px 30px;
+  background-color: #3f51b5;
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+.register-btn{
+  background: white !important;
+  color: #3f51b5 !important;
+  font-weight: bold;
+  border-radius: 8px;
+  padding: 8px 15px;
+  transition: all 0.3s ease-in-out;
+}
+
+.register-btn:hover {
+  background: #ddd !important;
+}
+
+.logout-btn {
+  background: white !important;
+  color: #3f51b5 !important;
+  font-weight: bold;
+  border-radius: 8px;
+  padding: 8px 15px;
+  transition: all 0.3s ease-in-out;
+}
+
+.logout-btn:hover {
+  background: #ddd !important;
+}
+
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 20px;
+  width: 90%;
+  max-width: 1200px;
+}
+
+.dashboard-card {
+  width: 400px;
+  padding: 30px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+.dashboard-btn {
+  width: 100%;
+  margin-top: 15px;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background-color: #3f51b5 !important;
+  color: white !important;
+  transition: all 0.3s ease-in-out;
+}
+
+.dashboard-btn:hover {
+  background-color: #303f9f !important;
+}
