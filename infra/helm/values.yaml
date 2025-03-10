@@ -9,8 +9,8 @@ service:
   type: ClusterIP
   ports:
     auth-service: 8081
-    user-service: 8083
     holiday-service: 8082
+    user-service: 8083
 
 database:
   mysql:

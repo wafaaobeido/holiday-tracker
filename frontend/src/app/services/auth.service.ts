@@ -1,7 +1,7 @@
 import { Inject, inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment.docker';
 
-import {  Observable, shareReplay} from 'rxjs';
+import {  catchError, Observable, of, shareReplay} from 'rxjs';
 import { User } from '../models/User';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { jwtDecode } from "jwt-decode";
@@ -20,7 +20,13 @@ export class AuthService {
 
 
   fetchApiKey(): Observable<{ apikey: string }> {
-    return this.http.get<{ apikey: string }>(`${environment.apiKeyEndpoint}`);
+    console.log("📌 Fetching API Key from server...");
+    return this.http.get<{ apikey: string }>(`${environment.apiKeyEndpoint}`) .pipe(
+      catchError(err => {
+        console.error("🔴 Error fetching API key:", err);
+        return of({ apikey: '' }); // Return an empty API key to prevent crashes
+      })
+    );
   }
 
   private getHeaders(): HttpHeaders {
@@ -42,9 +48,7 @@ export class AuthService {
   }
 
   login(credentials: { username: string; password: string }): Observable<any> {
-    
         return this.http.post(`${this.authUrl}login`, credentials);
-      
   }
 
   register(user: User): Observable<any> {
@@ -60,14 +64,17 @@ export class AuthService {
 
   logout(): void {
     sessionStorage.removeItem('token');
-    window.location.href = '/login';
+    this.router.navigate(['/login']);;
   }
 
   private tokenCheckInterval: any; // Store interval ID
 
   isTokenExpired(): boolean {
     const token = sessionStorage.getItem('token');
-    if (!token) return true; 
+    if (!token || token.split('.').length !== 3) {
+      console.error("🔴 Invalid token detected. Forcing expiration.");
+      return true; // Treat missing/invalid tokens as expired
+    }
 
     try {
       const decoded: any = jwtDecode(token);
@@ -82,7 +89,7 @@ export class AuthService {
       return currentTime >= expiryTime;
 
     } catch (error) {
-      console.error("🔴 Invalid token:", error);
+        console.error("🔴 Invalid token parsing error:", error);
       return true; 
     }
   }

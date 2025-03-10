@@ -1,5 +1,6 @@
 package com.holiday_tracker.user_service.controllers;
 
+import com.holiday_tracker.user_service.config.KafkaConsumerConfig;
 import com.holiday_tracker.user_service.models.UserActivityLog;
 import com.holiday_tracker.user_service.repositories.UserActivityRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,6 +27,12 @@ public class UserActivityPerformanceTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockitoBean
+    KafkaConsumerConfig kafkaConsumerConfig;
+
+    @MockitoBean
+    private JdbcTemplate jdbcTemplate;
 
     @MockitoBean
     private UserActivityRepository repository;
