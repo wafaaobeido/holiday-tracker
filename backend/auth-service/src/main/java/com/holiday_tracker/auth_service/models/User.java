@@ -1,16 +1,20 @@
 package com.holiday_tracker.auth_service.models;
 
-import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
+    private String firstname;
+    private String lastname;
     private String username;
     private String email;
     private String password;
+
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
 }

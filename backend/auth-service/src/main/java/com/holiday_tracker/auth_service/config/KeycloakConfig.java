@@ -7,8 +7,16 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class KeycloakConfig {
 
+//    private String issuerUri;
+//
+//    public String getJwkSetUri() {
+//        return issuerUri + "/protocol/openid-connect/certs";
+//    }
+
+
     @Bean
     public KeycloakSpringBootConfigResolver keycloakConfigResolver() {
+
         return new KeycloakSpringBootConfigResolver();
     }
 }

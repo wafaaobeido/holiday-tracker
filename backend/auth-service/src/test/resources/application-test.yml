@@ -1,0 +1,19 @@
+server:
+  port: 8070
+
+spring:
+  profile:
+    active: test
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8080/realms/myrealm/protocol/openid-connect/certs
+
+  kafka:
+    bootstrap-servers: "localhost:9092"
+
+  keycloak:
+    url: http://localhost:8080/admin/realms/myrealm/users
+    login-url: http://localhost:8080/realms/myrealm/protocol/openid-connect/token
+
